@@ -52,7 +52,7 @@ export type UpdateBookRequest = {
   title?: string
   description?: string
   image?: string
-  authors?: [number]
+  authors?: number[]
   genres?: number[]
   year?: number
   publisher?: string

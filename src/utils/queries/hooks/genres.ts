@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import type { CreateGenreRequest, Genre } from '../../types/genres'
 import {
   CreateGenre,
@@ -15,9 +15,10 @@ export const useCreateGenre = () => {
   })
 }
 
-export const useGetGenres = () => {
-  return useMutation<ListResponse<Genre>, Error, Pagination<undefined>>({
-    mutationFn: (params) => GetGenres(params),
+export const useGetGenres = (params: Pagination<undefined>) => {
+  return useQuery<ListResponse<Genre>, Error>({
+    queryKey: ['genres', params],
+    queryFn: () => GetGenres(params),
   })
 }
 
@@ -27,9 +28,11 @@ export const useUpdateGenre = () => {
   })
 }
 
-export const useGetGenreById = () => {
-  return useMutation<Genre, Error, number>({
-    mutationFn: (id) => GetGenresById(id),
+export const useGetGenreById = (id: number) => {
+  return useQuery<Genre, Error>({
+    queryKey: ['genre', id],
+    queryFn: () => GetGenresById(id),
+    enabled: id !== -1,
   })
 }
 

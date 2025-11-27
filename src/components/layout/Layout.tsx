@@ -3,10 +3,10 @@ import logoMain from '../../../public/logoMain.jpg'
 import './layout.scss'
 import { MenuOutlined } from '@ant-design/icons'
 import { Button, Flex, Typography, Drawer, message } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { palette } from '../../utils/theme/token'
 import { LOCAL_STORAGE } from '../../utils/constants/local-storage'
-import { useLogoutUser } from '../../utils/queries/hooks/user'
+import { useGetMe, useLogoutUser } from '../../utils/queries/hooks/user'
 import { useUserStore } from '../../utils/store/user-store'
 
 const { Title, Paragraph } = Typography
@@ -18,16 +18,37 @@ export function Layout() {
 
   const isAuthenticated = localStorage.getItem(LOCAL_STORAGE.ACCESS_TOKEN) ? true : false
   const { mutate: logoutMutation, isPending: isLogoutPending } = useLogoutUser()
+  const { mutate: getMe } = useGetMe()
+  const { setUser, clearUser, user } = useUserStore()
 
-  const clearUser = useUserStore((s) => s.clearUser)
+  useEffect(() => {
+    if (isAuthenticated && user) return
+    getMe(undefined, {
+      onSuccess: (user) => {
+        setUser(user)
+        navigate('/')
+      },
+      onError: (err) => {
+        console.log('Ошибка получения пользователя', err)
+      },
+    })
+  }, [])
+
+  console.log(user)
 
   const menuItems = isAuthenticated
-    ? [
-        { path: '/', label: 'Главная' },
-        { path: '/cart', label: 'Корзина' },
-        { path: '/profile', label: 'Профиль' },
-        { path: '/control', label: 'Управление' },
-      ]
+    ? user?.is_superuser
+      ? [
+          { path: '/', label: 'Главная' },
+          { path: '/cart', label: 'Корзина' },
+          { path: '/profile', label: 'Профиль' },
+          { path: '/control', label: 'Управление' },
+        ]
+      : [
+          { path: '/', label: 'Главная' },
+          { path: '/cart', label: 'Корзина' },
+          { path: '/profile', label: 'Профиль' },
+        ]
     : [
         { path: '/', label: 'Главная' },
         { path: '/login', label: 'Войти' },

@@ -4,7 +4,7 @@ import { privateApi, publicApi } from '../request-client'
 
 export const CreateAuthor = async (data: CreateAuthorResponse): Promise<Author> => {
   try {
-    const response = await privateApi.post('api/v1/authors', data)
+    const response = await privateApi.post('api/v1/authors/', data)
     return response.data
   } catch (e) {
     console.log(e)
@@ -14,7 +14,7 @@ export const CreateAuthor = async (data: CreateAuthorResponse): Promise<Author> 
 
 export const GetAuthor = async (data: Pagination<undefined>): Promise<ListResponse<Author>> => {
   try {
-    const response = await publicApi.get('api/v1/authors', { params: data })
+    const response = await publicApi.get('api/v1/authors/', { params: data })
     return response.data
   } catch (e) {
     console.log(e)
@@ -24,7 +24,7 @@ export const GetAuthor = async (data: Pagination<undefined>): Promise<ListRespon
 
 export const UpdateAuthor = async (data: Author): Promise<Author> => {
   try {
-    const response = await privateApi.patch('api/v1/authors', data)
+    const response = await privateApi.patch('api/v1/authors/', data)
     return response.data
   } catch (e) {
     console.log(e)

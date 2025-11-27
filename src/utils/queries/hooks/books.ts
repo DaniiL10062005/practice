@@ -1,6 +1,13 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type { Book, CreateBookRequest, GetBookRequest, UpdateBookRequest } from '../../types/books'
-import { CreateBook, DeleteBook, GetBook, GetBookById, UpdateBook } from '../requests/books'
+import {
+  CreateBook,
+  DeleteBook,
+  GetBook,
+  GetBookById,
+  UpdateBook,
+  UploadBookImage,
+} from '../requests/books'
 import type { ListResponse } from '../../types/general'
 
 export const useCreateBook = () => {
@@ -9,9 +16,10 @@ export const useCreateBook = () => {
   })
 }
 
-export const useGetBooks = () => {
-  return useMutation<ListResponse<Book>, Error, GetBookRequest>({
-    mutationFn: (params) => GetBook(params),
+export const useGetBooks = (params: GetBookRequest) => {
+  return useQuery<ListResponse<Book>, Error>({
+    queryKey: ['books', params],
+    queryFn: () => GetBook(params),
   })
 }
 
@@ -21,14 +29,22 @@ export const useUpdateBook = () => {
   })
 }
 
-export const useGetBookById = () => {
-  return useMutation<Book, Error, number>({
-    mutationFn: (id) => GetBookById(id),
+export const useGetBookById = (id: number) => {
+  return useQuery<Book, Error>({
+    queryKey: ['book', id],
+    queryFn: () => GetBookById(id),
+    enabled: id !== -1,
   })
 }
 
 export const useDeleteBook = () => {
   return useMutation<null, Error, number>({
     mutationFn: (id) => DeleteBook(id),
+  })
+}
+
+export const useUploadBookImage = () => {
+  return useMutation({
+    mutationFn: (file: File) => UploadBookImage(file),
   })
 }

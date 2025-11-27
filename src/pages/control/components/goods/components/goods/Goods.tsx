@@ -1,16 +1,77 @@
-import { Button, Flex, Pagination, Segmented, Typography } from 'antd'
+import { Button, Flex, Pagination, Segmented, Typography, type SegmentedProps } from 'antd'
 import { GoodCard } from './components/GoodCard'
-import { useState } from 'react'
-import { PlusOutlined } from '@ant-design/icons'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { GoodModal } from './components/GoodModal'
 import './goods.scss'
+import type { Author } from '../../../../../../utils/types/authors'
+import type { Book } from '../../../../../../utils/types/books'
+import { AuthorModal } from './components/AuthorModal'
+import { useDeleteAuthor } from '../../../../../../utils/queries/hooks/authors'
 
 const { Title } = Typography
 
-export const Goods = () => {
+type Props = {
+  authors: Author[] | undefined
+  books: Book[] | undefined
+  setBooksPage: Dispatch<SetStateAction<number>>
+  totalBooks?: number
+  refetchAuthors: () => void
+  refetchBooks: () => void
+  setSelectedAuthor: Dispatch<SetStateAction<Author | undefined>>
+  selectedAuthor: Author | undefined
+}
+
+export const Goods = ({
+  authors,
+  books,
+  setBooksPage,
+  totalBooks,
+  refetchAuthors,
+  refetchBooks,
+  setSelectedAuthor,
+  selectedAuthor,
+}: Props) => {
+  useEffect(() => {})
   const [isModalOpen, setModalOpen] = useState(false)
+  const [isAuthorModalOpen, setAuthorModalOpen] = useState(false)
+  const [isAuthorChange, setIsAuthorChange] = useState(false)
+  const { mutate: deleteAuthor } = useDeleteAuthor()
+
+  const deleteSelectedAuthor = () => {
+    if (selectedAuthor) {
+      deleteAuthor(selectedAuthor?.id, {
+        onSuccess: () => {
+          setSelectedAuthor(undefined)
+          refetchAuthors()
+        },
+      })
+    }
+  }
+
+  const onEditAuthor = () => {
+    if (authors === undefined) return
+
+    if (authors.length === 0) return
+
+    if (authors.length === 0) {
+      setSelectedAuthor(authors[0])
+      setAuthorModalOpen(true)
+      setIsAuthorChange(true)
+    } else if (selectedAuthor) {
+      setAuthorModalOpen(true)
+      setIsAuthorChange(true)
+    }
+  }
+  const authorOptions: SegmentedProps['options'] = [
+    { label: 'Без автора', value: 'all' },
+    ...(authors ?? []).map((author) => ({
+      label: author.name,
+      value: author.id,
+    })),
+  ]
   return (
-    <Flex align="center" gap={30} vertical>
+    <Flex style={{ width: '100%' }} align="center" gap={30} vertical>
       <Flex style={{ width: '100%' }} align="center" justify="space-between">
         <Title style={{ margin: '0' }} level={4}>
           Товары
@@ -24,49 +85,76 @@ export const Goods = () => {
           <PlusOutlined />
         </Button>
       </Flex>
-      <Flex align="center" gap={10}>
+      <Flex justify="space-between" style={{ width: '100%' }} align="center" gap={10}>
         <div className="goods__scroll-segmented">
           <Segmented
             size="large"
-            options={[
-              'Чехов',
-              'Достоевский',
-              'Пушкин',
-              'Оруэл',
-              'Хаксли',
-              'Чехов',
-              'Достоевский',
-              'Пушкин',
-              'Оруэл',
-              'Хаксли',
-              'Чехов',
-              'Достоевский',
-              'Пушкин',
-              'Оруэл',
-              'Хаксли',
-            ]}
+            options={authorOptions}
             onChange={(value) => {
-              console.log(value)
+              setSelectedAuthor(authors?.find((author) => author.id === value) ?? undefined)
             }}
           />
         </div>
-        <Button
-          onClick={() => setModalOpen(true)}
-          style={{ padding: '10px' }}
-          color="blue"
-          variant="solid"
-        >
-          <PlusOutlined />
-        </Button>
+        <Flex gap={2}>
+          <Button
+            onClick={() => {
+              setAuthorModalOpen(true)
+              setIsAuthorChange(false)
+            }}
+            style={{ padding: '10px' }}
+            color="blue"
+            variant="solid"
+          >
+            <PlusOutlined />
+          </Button>
+          <Button onClick={() => onEditAuthor()} style={{ padding: '10px' }}>
+            <EditOutlined />
+          </Button>
+          <Button
+            onClick={() => deleteSelectedAuthor()}
+            style={{ padding: '10px' }}
+            color="danger"
+            variant="solid"
+          >
+            <DeleteOutlined />
+          </Button>
+        </Flex>
       </Flex>
-
       <Flex gap={10} wrap>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <GoodCard key={i} />
+        {books?.map((book, i) => (
+          <GoodCard
+            id={book.id}
+            title={book.title}
+            author={book.authors.map((a) => a.name).join(', ')}
+            price={book.price}
+            image={book.image}
+            refetch={refetchBooks}
+            key={i}
+          />
         ))}
       </Flex>
-      <Pagination defaultCurrent={1} total={50} />
-      <GoodModal isChange={false} isOpen={isModalOpen} setOpen={setModalOpen} />
+      {totalBooks ? (
+        <Pagination
+          pageSize={4}
+          defaultCurrent={1}
+          total={totalBooks}
+          onChange={(page) => setBooksPage(page)}
+        />
+      ) : null}
+
+      <GoodModal
+        refetch={refetchBooks}
+        isChange={false}
+        isOpen={isModalOpen}
+        setOpen={setModalOpen}
+      />
+      <AuthorModal
+        isChange={isAuthorChange}
+        refetch={refetchAuthors}
+        isOpen={isAuthorModalOpen}
+        setOpen={setAuthorModalOpen}
+        author={selectedAuthor}
+      />
     </Flex>
   )
 }

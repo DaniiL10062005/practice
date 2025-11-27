@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type { Author, CreateAuthorResponse } from '../../types/authors'
 import type { ListResponse, Pagination } from '../../types/general'
 import {
@@ -15,9 +15,10 @@ export const useCreateAuthor = () => {
   })
 }
 
-export const useGetAuthors = () => {
-  return useMutation<ListResponse<Author>, Error, Pagination<undefined>>({
-    mutationFn: (params) => GetAuthor(params),
+export const useGetAuthors = (params: Pagination<undefined>) => {
+  return useQuery<ListResponse<Author>, Error>({
+    queryKey: ['authors', params],
+    queryFn: () => GetAuthor(params),
   })
 }
 
@@ -27,9 +28,11 @@ export const useUpdateAuthor = () => {
   })
 }
 
-export const useGetAuthorById = () => {
-  return useMutation<Author, Error, number>({
-    mutationFn: (id) => GetAuthorById(id),
+export const useGetAuthorById = (id: number) => {
+  return useQuery<Author, Error>({
+    queryKey: ['author', id],
+    queryFn: () => GetAuthorById(id),
+    enabled: id !== 0,
   })
 }
 

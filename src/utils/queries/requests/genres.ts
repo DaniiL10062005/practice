@@ -4,7 +4,7 @@ import { privateApi, publicApi } from '../request-client'
 
 export const CreateGenre = async (data: CreateGenreRequest): Promise<Genre> => {
   try {
-    const response = await privateApi.post('api/v1/genres', data)
+    const response = await privateApi.post('api/v1/genres/', data)
     return response.data
   } catch (e) {
     console.log(e)
@@ -14,7 +14,7 @@ export const CreateGenre = async (data: CreateGenreRequest): Promise<Genre> => {
 
 export const GetGenres = async (data: Pagination<undefined>): Promise<ListResponse<Genre>> => {
   try {
-    const response = await publicApi.get('api/v1/genres', { params: data })
+    const response = await publicApi.get('api/v1/genres/', { params: data })
     return response.data
   } catch (e) {
     console.log(e)
@@ -24,7 +24,7 @@ export const GetGenres = async (data: Pagination<undefined>): Promise<ListRespon
 
 export const UpdateGenres = async (data: Genre): Promise<Genre> => {
   try {
-    const response = await privateApi.patch('api/v1/genres', data)
+    const response = await privateApi.patch('api/v1/genres/', data)
     return response.data
   } catch (e) {
     console.log(e)

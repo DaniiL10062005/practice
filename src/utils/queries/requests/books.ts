@@ -4,7 +4,7 @@ import { privateApi, publicApi } from '../request-client'
 
 export const CreateBook = async (data: CreateBookRequest): Promise<Book> => {
   try {
-    const response = await privateApi.post('api/v1/books', data)
+    const response = await privateApi.post('api/v1/books/', data)
     return response.data
   } catch (e) {
     console.log(e)
@@ -14,7 +14,7 @@ export const CreateBook = async (data: CreateBookRequest): Promise<Book> => {
 
 export const GetBook = async (data: GetBookRequest): Promise<ListResponse<Book>> => {
   try {
-    const response = await publicApi.get('api/v1/books', { params: data })
+    const response = await publicApi.get('api/v1/books/', { params: data })
     return response.data
   } catch (e) {
     console.log(e)
@@ -24,7 +24,7 @@ export const GetBook = async (data: GetBookRequest): Promise<ListResponse<Book>>
 
 export const UpdateBook = async (data: UpdateBookRequest): Promise<Book> => {
   try {
-    const response = await privateApi.patch('api/v1/books', data)
+    const response = await privateApi.patch('api/v1/books/', data)
     return response.data
   } catch (e) {
     console.log(e)
@@ -48,6 +48,19 @@ export const DeleteBook = async (id: number): Promise<null> => {
     return response.data
   } catch (e) {
     console.log(e)
+    throw e
+  }
+}
+export const UploadBookImage = async (file: File): Promise<{ filename: string }> => {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await privateApi.post('files/upload', formData)
+
+    return response.data
+  } catch (e) {
+    console.error(e)
     throw e
   }
 }

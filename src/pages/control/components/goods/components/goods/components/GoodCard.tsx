@@ -5,8 +5,18 @@ import { GoodModal } from './GoodModal'
 
 const { Meta } = Card
 
-export const GoodCard = () => {
+type Props = {
+  title: string
+  author: string
+  price: number
+  image: string
+  refetch: () => void
+  id: number
+}
+
+export const GoodCard = ({ title, author, price, image, refetch, id }: Props) => {
   const [openModal, setOpenModal] = useState(false)
+
   return (
     <>
       <Card
@@ -15,23 +25,30 @@ export const GoodCard = () => {
         hoverable
         cover={
           <img
+            className="container__image"
             draggable={false}
-            alt="example"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr1x1h3e0DuqB_WaGGeu-R4joMCiwqw-C6dQ&s"
+            alt={title}
+            src={`https://testapi.2neko.ru/files/${image}`}
           />
         }
       >
         <Meta
-          title="Название книги"
+          title={title}
           description={
             <Flex vertical>
-              <span>Автор</span>
-              <span>Цена руб.</span>
+              <span>{author}</span>
+              <span>{price} руб.</span>
             </Flex>
           }
         />
       </Card>
-      <GoodModal isOpen={openModal} setOpen={setOpenModal} isChange={true} />
+      <GoodModal
+        refetch={refetch}
+        isOpen={openModal}
+        setOpen={setOpenModal}
+        id={id}
+        isChange={true}
+      />
     </>
   )
 }

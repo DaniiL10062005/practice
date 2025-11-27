@@ -1,24 +1,25 @@
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Flex, Typography } from 'antd'
-import { useState } from 'react'
+import { Button, Card, Flex, Typography } from 'antd'
+import { useState, type Dispatch, type SetStateAction } from 'react'
 import { CategoryModal } from './CategoryModal'
 import { CategoryItem } from './components/CategoryItem'
 import './categories.scss'
+import type { Genre } from '../../../../../../utils/types/genres'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 
-export const ControlCategories = () => {
+type Props = {
+  categories: Genre[] | undefined
+  refetch: () => void
+  setSelectedGenre?: Dispatch<SetStateAction<Genre | undefined>>
+}
+
+export const ControlCategories = ({ categories, refetch, setSelectedGenre }: Props) => {
   const [isModalOpen, setModalOpen] = useState(false)
-
-  const categories = Array.from({ length: 15 }).map((_, i) => ({
-    id: i + 1,
-    name: `Категория ${i + 1}`,
-  }))
-
   return (
     <>
-      <Flex gap={30} className="container" vertical>
-        <Flex gap={30} align="center">
+      <Flex style={{ width: '20%' }} gap={30} className="container" vertical>
+        <Flex justify="space-between" gap={30} align="center">
           <Title style={{ margin: '0' }} level={4}>
             Категории
           </Title>
@@ -32,12 +33,32 @@ export const ControlCategories = () => {
           </Button>
         </Flex>
         <Flex gap={10} className="container__category" vertical>
-          {categories.map((cat) => (
-            <CategoryItem key={cat.id} name={cat.name} />
+          <Card
+            className="category-item-container"
+            hoverable
+            onClick={() => setSelectedGenre?.(undefined)}
+          >
+            <Flex align="center" justify="space-between">
+              <Text>Все</Text>
+            </Flex>
+          </Card>
+          {categories?.map((cat) => (
+            <CategoryItem
+              id={cat.id}
+              refetch={refetch}
+              key={cat.id}
+              name={cat.genre}
+              setSelectedGenre={setSelectedGenre}
+            />
           ))}
         </Flex>
       </Flex>
-      <CategoryModal isChange={false} isOpen={isModalOpen} setOpen={setModalOpen} />
+      <CategoryModal
+        isChange={false}
+        isOpen={isModalOpen}
+        setOpen={setModalOpen}
+        refetch={refetch}
+      />
     </>
   )
 }
