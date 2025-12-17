@@ -45,7 +45,7 @@ export const HomePage = () => {
         </Flex>
       </Card>
       <ProductsGrid books={books?.data} />
-      {books?.meta.total ? (
+      {books?.meta?.total ? (
         <Pagination
           pageSize={20}
           defaultCurrent={1}
